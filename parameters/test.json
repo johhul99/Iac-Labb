@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": { "value": "test" },
+    "location": { "value": "swedencentral" },
+    "appServicePlanName": { "value": "asp-johan-test" },
+    "appName": { "value": "app-johan-test" },
+    "storageAccountName": { "value": "stgaccjohantest" },
+    "secretName": { "value": "demo-secret" },
+    "skuName": { "value": "B1" },
+    "skuTier": { "value": "Basic" },
+    "kvName": { "value": "kv-johan-test" },
+    "tags": {
+      "value": {
+        "owner": "johan",
+        "environment": "test",
+        "costCenter": "STUDENT"
+      }
+    },
+    "enableProdAutoscale": { "value": false },
+    "autoscaleMin": { "value": 1 },
+    "autoscaleMax": { "value": 1 },
+    "autoscaleDefaultCapacity": { "value": 1 }
+  }
+}
