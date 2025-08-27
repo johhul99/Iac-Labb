@@ -1,9 +1,12 @@
 targetScope = 'resourceGroup'
 
+param kvPrefix string
 param location string
 param webAppPrincipalId string
 param tags object = {}
-param kvName string
+
+var rawKv = toLower('${kvPrefix}${uniqueString(resourceGroup().id)}')
+var kvName = substring(rawKv, 0, min(24, length(rawKv)))
 
 resource kv 'Microsoft.KeyVault/vaults@2024-11-01' = {
   name: kvName
@@ -28,3 +31,5 @@ resource kv 'Microsoft.KeyVault/vaults@2024-11-01' = {
 }
 
 output vaultUri string = kv.properties.vaultUri
+output kvNameOut string = kvName
+

@@ -4,13 +4,6 @@
   "parameters": {
     "environment": { "value": "dev" },
     "location": { "value": "swedencentral" },
-    "appServicePlanName": { "value": "asp-johan-dev" },
-    "appName": { "value": "app-johan-dev" },
-    "storageAccountName": { "value": "stgaccjohandev" },
-    "secretName": { "value": "demo-secret" },
-    "skuName": { "value": "B1" },
-    "skuTier": { "value": "Basic" },
-    "kvName": { "value": "kv-johan-dev" },
     "tags": {
       "value": {
         "owner": "johan",
@@ -18,10 +11,25 @@
         "costCenter": "STUDENT"
       }
     },
+
+    "storagePrefix": { "value": "stgjohandev" },
+    "kvPrefix": { "value": "kv-johan-dev" },
+    "aspPrefix": { "value": "asp-johan-dev" },
+    "appPrefix": { "value": "app-johan-dev" },
+
+    "skuName": { "value": "B1" },
+    "skuTier": { "value": "Basic" },
+
+    "secretName": { "value": "demo-secret" },
+
     "enableProdAutoscale": { "value": false },
+    "autoscalePrefix": { "value": "auto-johan-dev" },
     "autoscaleMin": { "value": 1 },
     "autoscaleMax": { "value": 1 },
-    "autoscaleDefaultCapacity": { "value": 1 }
+    "autoscaleDefaultCapacity": { "value": 1 },
+    "cpuThresholdScaleOut": { "value": 80 },
+    "cpuThresholdScaleIn": { "value": 20 },
+    "durationMinutes": { "value": 10 },
+    "cooldownMinutes": { "value": 5 }
   }
 }
-

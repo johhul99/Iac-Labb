@@ -1,14 +1,19 @@
 targetScope = 'resourceGroup'
 
+param aspPrefix string
+param appPrefix string
 param location string
-param appServicePlanName string
-param appName string
-param tags object = {}
 param skuName string
 param skuTier string
+param tags object = {}
+
+var rawPlan = toLower('${aspPrefix}${uniqueString(resourceGroup().id)}')
+var aspName = substring(rawPlan, 0, min(40, length(rawPlan)))
+var rawApp = toLower('${appPrefix}${uniqueString(resourceGroup().id)}')
+var appName = substring(rawApp, 0, min(60, length(rawApp)))
 
 resource plan 'Microsoft.Web/serverfarms@2024-11-01' = {
-  name: appServicePlanName
+  name: aspName
   location: location
   sku: {
     name: skuName
@@ -31,6 +36,7 @@ resource app 'Microsoft.Web/sites@2024-11-01' = {
   tags: tags
 }
 
-output webAppUrl string = 'https://${app.name}.azurewebsites.net'
 output planId string = plan.id
 output principalId string = app.identity.principalId
+output appNameOut string = app.name
+

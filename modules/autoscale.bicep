@@ -1,21 +1,28 @@
 targetScope = 'resourceGroup'
 
-param autoscaleName string
+param autoscalePrefix string
 param targetResourceId string
 
-@minValue(1)
-param min int
+@minValue(1) 
+param minCapacity int
 
-@minValue(1)
-param max int
+@minValue(1) 
+param maxCapacity int
 
-@minValue(1)
+@minValue(1) 
 param defaultCapacity int
 
+param cpuThresholdScaleOut int
+param cpuThresholdScaleIn int
+param durationMinutes int
+param cooldownMinutes int
 param location string
 param tags object = {}
 
-resource as 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
+var rawAuto = toLower('${autoscalePrefix}${uniqueString(resourceGroup().id)}')
+var autoscaleName = substring(rawAuto, 0, min(90, length(rawAuto)))
+
+resource auto 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
   name: autoscaleName
   location: location
   tags: tags
@@ -25,14 +32,56 @@ resource as 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
     targetResourceUri: targetResourceId
     profiles: [
       {
-        name: 'default'
+        name: 'DefaultProfile'
         capacity: {
-          minimum: string(min)
-          maximum: string(max)
-          default: string(defaultCapacity)
+          minimum: '${minCapacity}'
+          maximum: '${maxCapacity}'
+          default: '${defaultCapacity}'
         }
-        rules: []
+        rules: [
+          {
+            metricTrigger: {
+              metricName: 'CpuPercentage'
+              metricNamespace: 'Microsoft.Web/serverfarms'
+              metricResourceUri: targetResourceId 
+              operator: 'GreaterThan'
+              statistic: 'Average'
+              threshold: cpuThresholdScaleOut
+              timeAggregation: 'Average'
+              timeGrain: 'PT1M'
+              timeWindow: 'PT${durationMinutes}M'
+            }
+            scaleAction: {
+              direction: 'Increase'
+              type: 'ChangeCount'
+              value: '1'
+              cooldown: 'PT${cooldownMinutes}M'
+            }
+          }
+          {
+            metricTrigger: {
+              metricName: 'CpuPercentage'
+              metricNamespace: 'Microsoft.Web/serverfarms'
+              metricResourceUri: targetResourceId
+              operator: 'LessThan'
+              statistic: 'Average'
+              threshold: cpuThresholdScaleIn
+              timeAggregation: 'Average'
+              timeGrain: 'PT1M'
+              timeWindow: 'PT${durationMinutes}M'
+            }
+            scaleAction: {
+              direction: 'Decrease'
+              type: 'ChangeCount'
+              value: '1'
+              cooldown: 'PT${cooldownMinutes}M'
+            }
+          }
+        ]
       }
     ]
   }
 }
+
+output autoscaleNameOut string = autoscaleName
+
